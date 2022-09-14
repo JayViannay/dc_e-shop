@@ -22,9 +22,6 @@ class Reference
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
 
-    #[ORM\OneToMany(mappedBy: 'title', targetEntity: Article::class, orphanRemoval: true)]
-    private Collection $articles;
-
     #[ORM\Column(length: 255)]
     private ?string $image = null;
 
@@ -33,6 +30,13 @@ class Reference
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
+
+    #[ORM\OneToMany(mappedBy: 'reference', targetEntity: Article::class)]
+    private Collection $articles;
+
+    private $sizes = [];
+
+    private $colors = [];
 
     public function __construct()
     {
@@ -68,36 +72,6 @@ class Reference
         return $this;
     }
 
-    /**
-     * @return Collection<int, Article>
-     */
-    public function getArticles(): Collection
-    {
-        return $this->articles;
-    }
-
-    public function addArticle(Article $article): self
-    {
-        if (!$this->articles->contains($article)) {
-            $this->articles->add($article);
-            $article->setTitle($this);
-        }
-
-        return $this;
-    }
-
-    public function removeArticle(Article $article): self
-    {
-        if ($this->articles->removeElement($article)) {
-            // set the owning side to null (unless already changed)
-            if ($article->getTitle() === $this) {
-                $article->setTitle(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getImage(): ?string
     {
         return $this->image;
@@ -106,6 +80,18 @@ class Reference
     public function setImage(string $image): self
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }
@@ -122,15 +108,60 @@ class Reference
         return $this;
     }
 
-    public function getDescription(): ?string
+    /**
+     * @return Collection<int, Article>
+     */
+    public function getArticles(): Collection
     {
-        return $this->description;
+        return $this->articles;
     }
 
-    public function setDescription(string $description): self
+    public function addArticle(Article $article): self
     {
-        $this->description = $description;
+        if (!$this->articles->contains($article)) {
+            $this->articles->add($article);
+            $article->setReference($this);
+        }
 
         return $this;
     }
+
+    public function removeArticle(Article $article): self
+    {
+        if ($this->articles->removeElement($article)) {
+            // set the owning side to null (unless already changed)
+            if ($article->getReference() === $this) {
+                $article->setReference(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getSizes(): array
+    {
+        $articles = $this->articles;
+        $sizes = [];
+        foreach ($articles as $article) {
+            if (!in_array($article->getSize()->getId(), $sizes) && $article->getQty() > 0) {
+                $sizes[$article->getSize()->getId()] = $article->getSize()->getName();
+            }
+        }
+        $this->sizes = $sizes;
+        return $this->sizes;
+    }
+
+    public function getColors(): array
+    {
+        $articles = $this->articles;
+        $colors = [];
+        foreach ($articles as $article) {
+            if (!in_array($article->getColor()->getId(), $colors) && $article->getQty() > 0) {
+                $colors[$article->getColor()->getId()] = $article->getColor()->getName();
+            }
+        }
+        $this->colors = $colors;
+        return $this->colors;
+    }
+    
 }

@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} - Accueil{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        {% for ref in refs %}
+        <div class="col-lg-3 col-md-4 col-sm-12 mx-auto my-2">
+            <div class="card">
+                <img src="{{ ref.image }}" class="card-img-top" style="height : 300px" alt="random description">
+                <div class="card-body">
+                    <h5 class="card-title">{{ ref.title }}</h5>
+                    <p class="card-text">{{ ref.description|length > 50 ? ref.description|slice(0 , 50) ~ '...' : ref.description }}</p>
+                    <p class="card-text">Prix : {{ ref.price.amount }}$</p>
+                    <div class="text-end">
+                        <a href="{{ path('shop_show', {'slug': ref.slug }) }}" class="btn btn-dark">Voir le détail</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

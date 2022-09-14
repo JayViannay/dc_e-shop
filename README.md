@@ -8,18 +8,20 @@
 
 🎈 tips : Le dossier `_ressources` peut contenir de la documentation et des ressources complémentaires pour chacune des étapes du projet
 
-# 🧮 Étape 1 : Base de données
+# 🧮 Étape 2 : Afficher une première liste d'article
 
-### 🕹 I : Créer la base de données
-- Explorer le fichier .env
-- Créer et connecter le projet à une base de données nommée `dc_e_shop` :
-  - Créer un fichier `.env.local` puis ajouter la ligne suivante avec vos propres identifiants de bdd
-  `DATABASE_URL="mysql://user_name:password@127.0.0.1:3306/dc_e_shop?serverVersion=8&charset=utf8mb4"`
-- Dans le terminal, à la racine du projet, éxécuter la commande suivante pour créer la base de données `dc_e_shop`: `bin/console doctrine:database:create`
-- Modéliser la base de données suivante à l'aide de Doctrine :
-  ![Schéma bdd](./_ressources/schema_bdd_part_1.png)
+### 🕹 I : Afficher la liste des références sur '/' home
+- Créer un nouveau controller nommé `ArticleController`à l'aide de la commande `bin/console make:controller ArticleController`
+- Dans `ArticleController`, observer le code généré par symfony puis le modifier en fonction du besoin : 
+  - remplacer `#[Route('/articles', name: 'app_articles')]` par `#[Route('/', name: 'app_articles')]` afin de faire pointer la liste des article vers l'url '/' 
+  - Faire une injection de dépendance pointant ReferenceRepository sur la méthode `index` : `public function index(ReferenceRepository $referenceRepository): Response` 
+  - Puis remplacer `'controller_name' => 'ArticlesController',` par `'articles' => $referenceRepository->findAll(),` pour passer la liste des articles à la vue grâce à la méthode de referenceRepository::findAll() qui permet de récupérer la liste de tous les articles
 
-### 🕹 II : Peupler la base de données
+
+
+### 🕹 II : Ajouter bootstrap
+
+- Intégrer le cdn bootstrap (templates/base.html.twig)
 
 - Installer le bundle fixtures pour peupler une base de données rapidement : [fixtures bundle documentation]('https://symfony.com/bundles/DoctrineFixturesBundle/current/index.html')
 

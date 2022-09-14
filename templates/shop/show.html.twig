@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} - Shop : {{ ref.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row mx-auto">
+        <div class="col-4">
+            <img src="{{ ref.image }}" class="card-img-top" alt="random description">
+        </div>
+        <div class="col-8">
+            <h5 class="card-title">{{ ref.title }}</h5>
+            <p class="card-text">{{ ref.description }}</p>
+            <p class="card-text">Price : {{ ref.price.amount }}$</p>
+
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#add_to_cart_modal"><i
+                    class="fa-solid fa-cart-plus"></i></button>
+        </div>
+    </div>
+    <div class="text-end">
+        <a href="{{ path('shop_home') }}" class="">Retour à la liste des models</a>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="add_to_cart_modal" tabindex="-1" aria-labelledby="add_to_cart_modal_label"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add_to_cart_modal_label">{{ref.title}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ path('shop_cart_add') }}" method="get">
+                    <input type="hidden" name="ref" class="form-control" value="{{ref.id}}">
+                    <select class="form-select my-3" aria-label="Default select sizes" name="size" id="select_size_js">
+                        <option selected>Choose size</option>
+                        {% for key, size in ref.sizes %}
+                        <option value="{{ key }}">{{ size }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="select_color_js"></div>
+                    <div class="my-3 col-6 mx-auto">
+                        <label for="qty" class="form-label">Quantity</label>
+                        <input type="text" name="qty" class="form-control" id="qty" value="1">
+                    </div>
+                    <div class="text-center my-3">
+                        <button type="submit" class="btn btn-primary">Add to cart</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+    const ref = JSON.parse('{{ ref.id | json_encode }}');
+    const sizes = JSON.parse('{{ ref.sizes | json_encode | raw }}');
+    const divSelectColor = document.getElementById('select_color_js');
+    let colors = [];
+    let idColors = [];
+    document.getElementById('select_size_js').addEventListener('change', e => {
+        axios.post(`/reference/colors`, { 'ref_id': ref, 'size_id': e.target.value })
+            .then(response => response.data)
+            .then(data => {
+                divSelectColor.innerHTML = "";
+
+                const select = document.createElement('select');
+                select.classList.add('form-select');
+                select.name = "color";
+
+                const defaultOpt = document.createElement('option');
+                defaultOpt.innerText = "Select color";
+                defaultOpt.selected = true;
+
+                select.appendChild(defaultOpt);
+                divSelectColor.appendChild(select);
+
+                colors = Object.values(data.colors);
+                idColors = Object.keys(data.colors);
+
+                for (let i = 0; i < colors.length; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = idColors[i];
+                    opt.innerHTML = colors[i];
+                    opt.name = "color_id";
+                    select.appendChild(opt)
+                }
+            })
+    });
+</script>
+{% endblock %}
