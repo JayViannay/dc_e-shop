@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Address;
+use App\Entity\UserOrder;
 use App\Form\AddressType;
 use App\Form\ProfileFormType;
 use App\Repository\AddressRepository;
@@ -32,11 +33,11 @@ class UserController extends AbstractController
 
         $address = new Address();
 
-        $formAddress = $this->createForm(AddressType::class, $address);
-        $formAddress->handleRequest($request);
-
         $formNewAddress = $this->createForm(AddressType::class, $address);
         $formNewAddress->handleRequest($request);
+
+        $formAddress = $this->createForm(AddressType::class, $address);
+        $formAddress->handleRequest($request);
 
         if ($formAddress->isSubmitted() && $formAddress->isValid()) {
             if ($request->get('address_id')) {
@@ -47,7 +48,7 @@ class UserController extends AbstractController
                     ->setName($address->getName())
                     ->setCity($address->getCity())
                     ->setZipcode($address->getZipcode())
-                    ->setCountry($address->getZipcode());
+                    ->setCountry($address->getCountry());
 
                 $addressRepository->add($addr, true);
 
@@ -59,9 +60,11 @@ class UserController extends AbstractController
         if ($formNewAddress->isSubmitted() && $formNewAddress->isValid()) {
             $address->setUser($user);
             $addressRepository->add($address, true);
+            $user->setMainAddress($address);
+            $userRepository->add($user, true);
 
             $this->addFlash('success', 'Adresse correctement ajoutée !');
-            return $this->redirectToRoute('app_user_profile');
+            return $this->redirectToRoute('app_user_addresses');
         }
 
         return $this->render('user/index.html.twig', [
@@ -71,8 +74,68 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/profil/adresses', name: 'app_user_addresses', methods: ['GET','POST'])]
+    public function listUserAddress(Request $request, AddressRepository $addressRepository, UserRepository $userRepository)
+    {
+        $user = $this->getUser();
+        $address = new Address();
+        $formNewAddress = $this->createForm(AddressType::class, $address);
+        $formNewAddress->handleRequest($request);
+
+        if ($formNewAddress->isSubmitted() && $formNewAddress->isValid()) {
+            $address->setUser($user);
+            $addressRepository->add($address, true);
+            $user->setMainAddress($address);
+            $userRepository->add($user, true);
+
+            $this->addFlash('success', 'Adresse correctement ajoutée !');
+            return $this->redirectToRoute('app_user_addresses');
+        }
+
+        return $this->render('user/addresses.html.twig', [
+            'formNewAddress' => $formNewAddress->createView(),
+        ]);
+    }
+
+    #[Route('/profil/commandes', name: 'app_user_orders', methods: ['GET','POST'])]
+    public function listUserOrders()
+    {
+        return $this->render('user/orders.html.twig');
+    }
+
+    #[Route('/profil/commandes/{id}', name: 'app_user_order_show', methods: ['GET'])]
+    public function userOrder(UserOrder $order)
+    {
+        return $this->render('user/order_show.html.twig',[
+            'order' => $order
+        ]);
+    }
+
+    #[Route('/profile/address/{id}', name: 'app_user_delete_address', methods: ['POST'])]
+    public function deleteAddress(Request $request, Address $address, AddressRepository $addressRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$address->getId(), $request->request->get('_token'))) {
+            $addressRepository->remove($address, true);
+        }
+
+        return $this->redirectToRoute('app_user_addresses', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/profile/address/{id}/choose', name: 'app_user_main_address', methods: ['POST'])]
+    public function chooseAddress(Request $request, Address $address, AddressRepository $addressRepository, UserRepository $userRepository): Response
+    {
+        if ($this->isCsrfTokenValid('choose'.$address->getId(), $request->request->get('_token'))) {
+            $user = $this->getUser();
+            $user->setMainAddress($address);
+            $userRepository->add($user, true);
+            $this->addFlash('success', 'Adresse principale prise en compte');
+        }
+
+        return $this->redirectToRoute('app_user_addresses', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/api/profile/addresse/{id}', name: 'json_user_addresses')]
-    public function addressesUser(Address $address, Request $request, AddressRepository $addressRepository)
+    public function addressesUser(Address $address)
     {
         $response = new Response(json_encode(array('address' => [
             "id" => $address->getId(),
@@ -85,16 +148,5 @@ class UserController extends AbstractController
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
-        //return $this->render('default/about.html.twig');
-    }
-
-    #[Route('/profile/address/{id}', name: 'app_user_delete_address', methods: ['POST'])]
-    public function delete(Request $request, Address $address, AddressRepository $addressRepository): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$address->getId(), $request->request->get('_token'))) {
-            $addressRepository->remove($address, true);
-        }
-
-        return $this->redirectToRoute('app_user_profile', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -43,9 +43,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?int $phone = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserOrder::class)]
+    private Collection $orders;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?Address $mainAddress = null;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,6 +186,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhone(?int $phone): self
     {
         $this->phone = $phone;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserOrder>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(UserOrder $order): self
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(UserOrder $order): self
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getUser() === $this) {
+                $order->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getMainAddress(): ?Address
+    {
+        return $this->mainAddress;
+    }
+
+    public function setMainAddress(?Address $mainAddress): self
+    {
+        $this->mainAddress = $mainAddress;
 
         return $this;
     }

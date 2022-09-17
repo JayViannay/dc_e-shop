@@ -1,0 +1,18 @@
+<div class="col-md-5 border-end">
+    <div class="p-3 py-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-end">Informations profil</h4>
+        </div>
+        {{ form_start(formUser) }}
+        <div class="row mt-2">
+            <div class="col-md-6">{{ form_row(formUser.firstname) }}</div>
+            <div class="col-md-6">{{ form_row(formUser.lastname) }}</div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">{{ form_row(formUser.email) }}</div>
+            <div class="col-md-12">{{ form_row(formUser.phone) }}</div>
+            {{ form_row(formUser.save, { 'attr': {'class': 'btn-dark btn-sm'}, 'label' : 'Modifier' }) }}
+        </div>
+        {{ form_end(formUser) }}
+    </div>
+</div>

@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} - Profil/Adresses{% endblock %}
+
+{% block body %}
+<section id="user_addresses">
+    <div class="container rounded bg-white">
+        <div class="row">
+            {% include ('user/components/nav.html.twig') %}
+            {% include ('user/components/action_address.html.twig') %}
+        </div>
+    </div>
+    {% include ('user/components/modal_form_address.html.twig') %}
+</section>
+{% endblock %}

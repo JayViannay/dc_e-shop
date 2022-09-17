@@ -1,0 +1,15 @@
+<div class="col-md-3 border-end">
+    <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+        <img class="rounded-circle mt-5" width="150px"
+            src="https://cdn.shopify.com/s/files/1/1061/1924/files/Alien_Emoji.png?8026536574188759287">
+        <span class="font-weight-bold">{{ app.user.firstname }}</span>
+        <span class="text-black-50">{{ app.user.email }}</span>
+        <div class="p-3">
+            <ul class="list-unstyled">
+                <li><a href="{{path('app_user_orders')}}" class="nav-link">Commandes</a></li>
+                <li><a href="{{path('app_user_profile')}}" class="nav-link">Infos personnelles</a></li>
+                <li><a href="{{path('app_user_addresses')}}" class="nav-link">Gérer les adresses</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

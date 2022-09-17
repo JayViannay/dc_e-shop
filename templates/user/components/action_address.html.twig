@@ -1,0 +1,64 @@
+<div class="col-md-9">
+    <div class="jumbotron mt-3">
+        <h1 class="display-6 mb-3">Adresses :</h1>
+        <div class="text-end">
+            <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal"
+                data-bs-target="#form-new-address">
+                <i class="fa fa-plus"></i>&nbsp;ajouter une adresse
+            </button>
+        </div>
+        {% if app.user.addresses | length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Rue</th>
+                    <th>Code Postal</th>
+                    <th>Ville</th>
+                    <th>Pays</th>
+                    <th class="text-center">Adresse Principale</th>
+                    <th>Supprimer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for address in app.user.addresses %}
+                <tr>
+                    <td>{{ address.name }}</td>
+                    <td>{{ address.way }}</td>
+                    <td>{{ address.zipcode }}</td>
+                    <td>{{ address.city }}</td>
+                    <td>{{ address.country }}</td>
+                    <td class="text-center">
+                        <form method="post"
+                            action="{{ path('app_user_main_address', {'id': address.id }) }}">
+                            <input type="hidden" name="_token"
+                                value="{{ csrf_token('choose' ~ address.id) }}">
+                            <button class="btn">
+                                {% if app.user.mainAddress and app.user.mainAddress.id == address.id %}
+                                <i class="fa-solid fa-toggle-on"></i>
+                                {% else %}
+                                <i class="fa-solid fa-toggle-off"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td class="text-center">
+                        <form method="post"
+                            action="{{ path('app_user_delete_address', {'id': address.id }) }}"
+                            onsubmit="return confirm('Are you sure you want to delete this item?');">
+                            <input type="hidden" name="_token"
+                                value="{{ csrf_token('delete' ~ address.id) }}">
+                            <button class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-dark" role="alert">
+            Vous n'avez pas encore de enregistré d'adresse.
+        </div>
+        {% endif %}
+    </div>
+</div>

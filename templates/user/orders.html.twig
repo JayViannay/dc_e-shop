@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} - Profil/Commandes{% endblock %}
+
+{% block body %}
+<section id="user_orders">
+    <div class="container rounded bg-white">
+        <div class="row">
+            {% include ('user/components/nav.html.twig') %}
+            {% include ('user/components/show_orders.html.twig') %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

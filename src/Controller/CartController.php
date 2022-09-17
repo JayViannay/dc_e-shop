@@ -2,8 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Ticket;
+use App\Entity\UserOrder;
+use App\Form\PaymentFormType;
 use App\Repository\ArticleRepository;
 use App\Repository\ReferenceRepository;
+use App\Repository\TicketRepository;
+use App\Repository\UserOrderRepository;
 use App\Service\CartService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,11 +25,39 @@ class CartController extends AbstractController
     }
 
     #[Route('/cart', name: 'shop_cart')]
-    public function index(): Response
+    public function index(
+        Request $request,
+        UserOrderRepository $userOrderRepository,
+        CartService $cartService,
+        TicketRepository $ticketRepository): Response
     {
+        $order = new UserOrder();
+        $order->setUser($this->getUser());
+
+        $orderForm = $this->createForm(PaymentFormType::class, $order);
+        $orderForm->handleRequest($request);
+
+        if ($orderForm->isSubmitted() && $orderForm->isValid()) {
+            $order->setTotal($cartService->getTotalCart());
+            $userOrderRepository->add($order, true);
+            
+            $articles = $cartService->getCartItems();
+            foreach ($articles as $article) {
+                $ticket = new Ticket();
+                $ticket->setReferenceOrder($order)->setArticle($article['article'])->setQty($article['quantity']);
+                $ticketRepository->add($ticket, true);
+            }
+            
+            $this->addFlash('success', 'Félicitations, votre commande est validée !');
+            $cartService->cleanCart();
+
+            return $this->redirectToRoute('app_user_profile');
+        }
+
         return $this->render('cart/index.html.twig', [
             'items' => $this->cartService->getCartItems(),
-            'total' => $this->cartService->getTotalCart()
+            'total' => $this->cartService->getTotalCart(),
+            'orderForm' => $orderForm->createView(),
         ]);
     }
 

@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ ref.title }}</h5>
                     <p class="card-text">{{ ref.description|length > 50 ? ref.description|slice(0 , 50) ~ '...' : ref.description }}</p>
-                    <p class="card-text">Prix : {{ ref.price.amount }}$</p>
+                    <p class="card-text">Prix : {{ ref.price.amount }} €</p>
                     <div class="text-end">
                         <a href="{{ path('shop_show', {'slug': ref.slug }) }}" class="btn btn-dark">Voir le détail</a>
                     </div>

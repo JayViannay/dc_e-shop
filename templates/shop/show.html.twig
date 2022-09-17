@@ -11,7 +11,7 @@
         <div class="col-8">
             <h5 class="card-title">{{ ref.title }}</h5>
             <p class="card-text">{{ ref.description }}</p>
-            <p class="card-text">Price : {{ ref.price.amount }}$</p>
+            <p class="card-text">Price : {{ ref.price.amount }} €</p>
             <div class="row">
                 <div class="col-6">
                     <h6>Couleurs disponibles :</h6>
@@ -40,9 +40,9 @@
 {% endblock %}
 {% block javascript %}
 <script>
-    const ref = JSON.parse('{{ ref.id | json_encode }}');
+    const show_ref = JSON.parse('{{ ref.id | json_encode }}');
     document.getElementById('select_size_js').addEventListener('change', e => {
-        getAndDisplayColors(ref, e.target.value);
+        getAndDisplayColors(show_ref, e.target.value);
     });    
 </script>
 {% endblock %}

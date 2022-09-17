@@ -1,0 +1,59 @@
+<div class="col-md-4">
+    <div class="p-3 py-5">
+        <div class="d-flex d-row justify-content-between">
+            <div class="row">
+                <h5 class="text-start mt-3">Adresse principale :</h5>
+                {% if app.user.addresses|length > 0 %}
+                {% if app.user.mainAddress %}
+                <p>{{app.user.mainAddress.name|upper}}</p>
+                <p>
+                    {{app.user.mainAddress.way}}<br>
+                    {{app.user.mainAddress.zipcode}} - {{app.user.mainAddress.city}}<br>
+                    {{app.user.mainAddress.country}}
+                </p>
+                {% else %}
+                <p>Choisissez une adresse principale</p>
+                {% endif %}
+                {% else %}
+                <p>Vous devez enregistrer une adresse pour commander. <br>
+                    <button type="button" class="btn btn-sm btn-dark mt-2" data-bs-toggle="modal"
+                        data-bs-target="#form-new-address">
+                        <i class="fa fa-plus"></i>&nbsp;ajouter une adresse
+                    </button>
+                </p>
+                {% endif %}
+            </div>
+            <div>
+                <button type="button" id="js_close" class="btn btn-sm d-none" data-bs-toggle="modal"
+                    data-bs-target="#close">
+                    <i class="fa-solid fa-x"></i>
+                </button>
+            </div>
+        </div>
+        <div class="my-3">
+            {{ form_start(formAddress) }}
+            {% if app.user.addresses|length > 0 %}
+            <select name="address_id" id="select-address" class="form-select"
+                data-user-profile="{{ app.user.addresses|json_encode|e('html_attr') }}">
+                <option value="">Selectionner une adresse</option>
+                {% for addr in app.user.addresses %}
+                <option value="{{ addr.id }}">{{ addr.id }} - {{ addr.name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <div class="my-2"></div>
+            <div class="d-none" id="js_form_address">
+                <div>
+                    <div class="col-md-12 mt-2">{{ form_row(formAddress.name) }}</div>
+                    <div class="col-md-12 mt-2">{{ form_row(formAddress.way) }}</div>
+                    <div class="col-md-12 mt-2">{{ form_row(formAddress.zipcode) }}</div>
+                    <div class="col-md-12 mt-2">{{ form_row(formAddress.city) }}</div>
+                    <div class="col-md-12">{{ form_row(formAddress.country) }}</div>
+                    {{ form_row(formAddress.save, { 'attr': {'class': 'btn-dark btn-sm'}, 'label' :
+                    'Enregistrer' }) }}
+                    {{ form_end(formAddress) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
