@@ -1,0 +1,18 @@
+<form action="{{ path('shop_cart_add') }}" method="get">
+    <input type="hidden" name="ref" class="form-control" value="{{ref.id}}">
+    <select class="form-select my-3" aria-label="Default select sizes" name="size" id="select_size_js">
+        <option selected>Choose size</option>
+        {% for key, size in ref.sizes %}
+        <option value="{{ key }}">{{ size }}</option>
+        {% endfor %}
+    </select>
+    <div id="select_color_js"></div>
+    <div class="my-3">
+        <label for="qty" class="form-label">Quantity</label>
+        <input type="text" name="qty" class="form-control" id="qty" value="1">
+    </div>
+    <div class="my-3">
+        <button type="submit" id="js_add_cart_btn" class="btn btn-dark d-none"><i
+            class="fa-solid fa-cart-plus"></i></button>
+    </div>
+</form>

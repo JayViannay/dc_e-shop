@@ -3,7 +3,7 @@
 {% block title %} - Cart{% endblock %}
 
 {% block body %}
-<div class="container">
+<section class="container" id="cart_ticket">
     <div class="jumbotron mt-3">
         <h1 class="display-6 mb-3">Cart :</h1>
         {% if items | length > 0 %}
@@ -23,30 +23,31 @@
             <tbody>
                 {% for item in items %}
                 <tr>
-                    <td>{{ item.article.reference.title }}</td>
+                    <td><a href="{{ path('shop_show', { 'slug': item.article.reference.slug }) }}">{{ item.article.reference.title }}</a></td>
                     <td><img src="{{ item.article.reference.image }}" alt="lorem ipsum" width="64px" height="64px"></td>
                     <td>{{ item.article.size.name }}</td>
                     <td>{{ item.article.color.name }}</td>
                     <td>{{ item.article.reference.price.amount }} $</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.article.reference.price.amount * item.quantity }} $</td>
-                    <td><a href="{{ path('shop_cart_remove', { 'id': item.article.id })}}" class="btn btn-danger btn-sm">remove</a></td>
+                    <td><a href="{{ path('shop_cart_remove', { 'id': item.article.id })}}" class="btn btn-warning btn-sm"><i class="fa-solid fa-trash"></i> Supprimer</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" class="text-right">Total : </td>
-                    <td>{{ total }} $</td>
-                    <td></td>
+                    <td colspan="6" class="text-right">Total : </td>
+                    <td colspan="1">{{ total }} $</td>
+                    <td colspan="1"><a href="{{ path('app_payment') }}" class="btn btn-sm btn-dark"><i class="fa-solid fa-credit-card"></i> Payer</a></td>
                 </tr>
             </tfoot>
         </table>
+        <div class="text-end"></div>
         {% else %}
         <div class="alert alert-dark" role="alert">
             Cart is empty
         </div>
         {% endif %}
     </div>
-</div>
+</section>
 {% endblock %}

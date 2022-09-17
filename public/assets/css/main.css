@@ -2,3 +2,39 @@ body {
 	height: 100vh;
 	background-color: rgb(245, 245, 245);
 }
+
+.circle {
+	width: 35px;
+	height: 35px;
+}
+
+.circle-black {
+	background-color: black;
+	border: 1px solid black;
+	border-radius: 50%;
+}
+.circle-white {
+	background-color: white;
+	border: 1px solid white;
+	border-radius: 50%;
+}
+.circle-yellow {
+	background-color: yellow;
+	border: 1px solid yellow;
+	border-radius: 50%;
+}
+.circle-red {
+	background-color: red;
+	border: 1px solid red;
+	border-radius: 50%;
+}
+.circle-blue {
+	background-color: blue;
+	border: 1px solid blue;
+	border-radius: 50%;
+}
+.circle-green {
+	background-color: green;
+	border: 1px solid green;
+	border-radius: 50%;
+}

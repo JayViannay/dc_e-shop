@@ -4,6 +4,142 @@
 
 {% block body %}
 <section id="contact">
-    <h1>Bienvenue {{app.user.email}} !</h1>
+    <div class="container rounded bg-white">
+        <div class="row">
+            <div class="col-md-3 border-right">
+                <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                    <img class="rounded-circle mt-5" width="150px"
+                        src="https://cdn.shopify.com/s/files/1/1061/1924/files/Alien_Emoji.png?8026536574188759287">
+                    <span class="font-weight-bold">{{ app.user.firstname }}</span>
+                    <span class="text-black-50">{{ app.user.email }}</span>
+                </div>
+            </div>
+            <div class="col-md-5 border-right">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-right">Informations profil</h4>
+                    </div>
+                    {{ form_start(formUser) }}
+                    <div class="row mt-2">
+                        <div class="col-md-6">{{ form_row(formUser.firstname) }}</div>
+                        <div class="col-md-6">{{ form_row(formUser.lastname) }}</div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">{{ form_row(formUser.email) }}</div>
+                        <div class="col-md-12">{{ form_row(formUser.phone) }}</div>
+                        {{ form_row(formUser.save, { 'attr': {'class': 'btn-dark btn-sm'}, 'label' : 'Modifier' }) }}
+                    </div>
+                    {{ form_end(formUser) }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal"
+                                data-bs-target="#form-new-address">
+                                <i class="fa fa-plus"></i>&nbsp;new
+                                address
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" id="js_close" class="btn btn-sm d-none" data-bs-toggle="modal"
+                                data-bs-target="#close">
+                                <i class="fa-solid fa-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="my-3">
+                        {{ form_start(formAddress) }}
+                        {% if app.user.addresses|length > 0 %}
+                        <select name="address_id" id="select-address" class="form-select"
+                            data-user-profile="{{ app.user.addresses|json_encode|e('html_attr') }}">
+                            <option value="">Selectionner une adresse</option>
+                            {% for addr in app.user.addresses %}
+                            <option value="{{ addr.id }}">{{ addr.id }} - {{ addr.name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+
+                        <div class="my-2"></div>
+                        <div class="d-none" id="js_form_address">
+                            <div>
+                                <div class="col-md-12 mt-2">{{ form_row(formAddress.name) }}</div>
+                                <div class="col-md-12 mt-2">{{ form_row(formAddress.way) }}</div>
+                                <div class="col-md-12 mt-2">{{ form_row(formAddress.zipcode) }}</div>
+                                <div class="col-md-12 mt-2">{{ form_row(formAddress.city) }}</div>
+                                <div class="col-md-12">{{ form_row(formAddress.country) }}</div>
+                                {{ form_row(formAddress.save, { 'attr': {'class': 'btn-dark btn-sm'}, 'label' :
+                                'Enregistrer' }) }}
+                                {{ form_end(formAddress) }}
+                            </div>
+                        </div>
+                        {% if app.user.addresses|length > 0 %}
+                        <div class="text-end">
+                            <form method="post"
+                                action="{{ path('app_user_delete_address', {'id': app.user.addresses[0].id}) }}"
+                                onsubmit="return confirm('Are you sure you want to delete this item?');">
+                                <input type="hidden" name="_token"
+                                    value="{{ csrf_token('delete' ~ app.user.addresses[0].id) }}">
+                                <button class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 </section>
+
+<!-- Modal -->
+<div class="modal fade" id="form-new-address" tabindex="-1" aria-labelledby="form-new-address-abel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="form-new-address-abel">Ajouter une nouvelle addresse</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ form(formNewAddress) }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+    console.log('Hello From app_user_profile');
+    const displayAddressForm = (value) => {
+        document.getElementById('js_close').classList.remove('d-none');
+        document.getElementById('js_form_address').classList.remove('d-none');
+        axios.get(`/api/profile/addresse/${value}`)
+            .then(response => response.data)
+            .then(data => {
+                document.getElementById('address_name').value = data.address.name;
+                document.getElementById('address_way').value = data.address.way;
+                document.getElementById('address_zipcode').value = data.address.zipcode;
+                document.getElementById('address_city').value = data.address.city;
+                document.getElementById('address_country').value = data.address.country;
+                document.getElementById('select-address').value = data.address.id;
+            });
+    }
+
+    const toggleBtnAddressForm = () => {
+        document.getElementById('js_form_address').classList.add('d-none');
+        document.getElementById('js_close').classList.add('d-none');
+    } 
+    
+    document.getElementById('select-address').addEventListener('change', e => {
+        console.log('Hello From app_user_profile');
+        displayAddressForm(e.target.value);
+    });
+
+    document.getElementById('js_close').addEventListener('click', e => {
+        toggleBtnAddressForm();
+    });
+</script>
 {% endblock %}

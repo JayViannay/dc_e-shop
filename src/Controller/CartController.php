@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ArticleRepository;
+use App\Repository\ReferenceRepository;
 use App\Service\CartService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,17 +29,25 @@ class CartController extends AbstractController
     }
 
     #[Route('/cart/add', name: 'shop_cart_add')]
-    public function add(Request $request, ArticleRepository $articleRepository)
+    public function add(Request $request, ArticleRepository $articleRepository, ReferenceRepository $referenceRepository)
     {
-        $article = $articleRepository->findOneByParams($request->get('ref'), $request->get('size'), $request->get('color'));
+        $ref = $referenceRepository->find($request->get('ref'));
+        $size = $request->get('size');
+        $color = $request->get('color');
+
+        if (!$size) $this->addFlash('danger', 'Size are required !');
+        if (!$color) $this->addFlash('danger', 'Color are required !');
+        
+        $article = $articleRepository->findOneByParams($ref->getId(), $size, $color);
         if ($article && $article->getQty() > 0) {
             $this->cartService->add($article->getId());
             $this->addFlash('success', 'Article added to cart!');
+            return $this->redirectToRoute('shop_show', ['slug' => $ref->getSlug()]);
         } else {
-            $this->addFlash('success', 'Article not available anymore!');
+            $this->addFlash('danger', 'Article not available anymore!');
         }
   
-        return $this->redirectToRoute('app_reference_show', ['slug' => $article->getReference()->getSlug()]);
+        return $this->redirectToRoute('shop_show', ['slug' => $ref->getSlug()]);
     }
 
     #[Route('/cart/remove/{id}', name: 'shop_cart_remove')]

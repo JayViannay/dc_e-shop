@@ -4,6 +4,9 @@
 
 {% block body %}
 <section id="contact">
-    <h1>Contact</h1>
+    <div class="container">
+        <h1>Contact</h1>
+        {{ include('default/_form.html.twig') }}
+    </div>
 </section>
 {% endblock %}
