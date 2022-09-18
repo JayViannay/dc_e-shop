@@ -29,8 +29,9 @@ class CartController extends AbstractController
         Request $request,
         UserOrderRepository $userOrderRepository,
         CartService $cartService,
-        TicketRepository $ticketRepository): Response
-    {
+        TicketRepository $ticketRepository,
+        ArticleRepository $articleRepository
+    ): Response {
         $order = new UserOrder();
         $order->setUser($this->getUser());
 
@@ -40,17 +41,26 @@ class CartController extends AbstractController
         if ($orderForm->isSubmitted() && $orderForm->isValid()) {
             $order->setTotal($cartService->getTotalCart());
             $userOrderRepository->add($order, true);
-            
+
             $articles = $cartService->getCartItems();
             foreach ($articles as $article) {
-                $ticket = new Ticket();
-                $ticket->setReferenceOrder($order)->setArticle($article['article'])->setQty($article['quantity']);
-                $ticketRepository->add($ticket, true);
-            }
-            
-            $this->addFlash('success', 'Félicitations, votre commande est validée !');
-            $cartService->cleanCart();
+                if ($article['article']->getQty() < $article['quantity']) {
+                    return $this->addFlash('danger', $article['article']->getReference()->getTitle() .'n\est pas disponible dans la quantité demandée (quantité en stock : '.$article['article']->getQty());
+                } else {
+                    $ticket = new Ticket();
+                    $ticket->setReferenceOrder($order)->setArticle($article['article'])->setQty($article['quantity']);
+                    $ticketRepository->add($ticket, true);
 
+                    // handle stock
+                    $article['article']->setQty($article['article']->getQty() - $article['quantity']);
+                    $articleRepository->add($article['article'], true);
+
+                    $this->addFlash('success', 'Félicitations, votre commande est validée !');
+                    $cartService->cleanCart();
+
+                    return $this->redirectToRoute('app_user_orders');
+                }
+            }
             return $this->redirectToRoute('app_user_profile');
         }
 
@@ -67,19 +77,31 @@ class CartController extends AbstractController
         $ref = $referenceRepository->find($request->get('ref'));
         $size = $request->get('size');
         $color = $request->get('color');
+        $qty = $request->get('qty');
 
-        if (!$size) $this->addFlash('danger', 'Size are required !');
-        if (!$color) $this->addFlash('danger', 'Color are required !');
-        
-        $article = $articleRepository->findOneByParams($ref->getId(), $size, $color);
-        if ($article && $article->getQty() > 0) {
-            $this->cartService->add($article->getId());
-            $this->addFlash('success', 'Article added to cart!');
-            return $this->redirectToRoute('shop_show', ['slug' => $ref->getSlug()]);
-        } else {
-            $this->addFlash('danger', 'Article not available anymore!');
+        if (!$size) {
+            $this->addFlash('danger', 'Size are required !');
         }
-  
+        if (!$color) {
+            $this->addFlash('danger', 'Color are required !');
+        }
+        if (!$qty) {
+            $qty = 1;
+        }
+
+        $article = $articleRepository->findOneByParams($ref->getId(), $size, $color);
+        if ($article) {
+            if ($article->getQty() > 0 && $qty <= $article->getQty()) {
+                $this->cartService->add($article->getId(), $qty);
+                $this->addFlash('success', 'Article ajouté au panier !');
+                return $this->redirectToRoute('shop_show', ['slug' => $ref->getSlug()]);
+            } else {
+                $this->addFlash('danger', 'La quantité souhaitée est au dessus des ' .$article->getQty() .' exemplaires en stock actuellement.');
+            }
+        } else {
+            $this->addFlash('danger', 'Article indisponible');
+        }
+
         return $this->redirectToRoute('shop_show', ['slug' => $ref->getSlug()]);
     }
 

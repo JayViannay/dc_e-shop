@@ -37,7 +37,7 @@ class ShopController extends AbstractController
         ]);
     }
 
-    #[Route('/reference/colors', name: 'json_shop_reference_colors')]
+    #[Route('/api/reference/colors', name: 'json_shop_reference_colors')]
     public function referenceColorsBySize(Request $request)
     {
         $data = json_decode($request->getContent(), true);
@@ -51,6 +51,17 @@ class ShopController extends AbstractController
         }
 
         $response = new Response(json_encode(array('colors' => $colors)));
+        $response->headers->set('Content-Type', 'application/json');
+        
+        return $response;
+    }
+
+    #[Route('/api/reference/article-infos', name: 'json_shop_reference_article_infos')]
+    public function getArticle(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $article = $this->articleRepository->findOneByParams($data["ref"], $data["size"], $data["color"]);
+        $response = new Response(json_encode(array('article_qty' => $article->getQty())));
         $response->headers->set('Content-Type', 'application/json');
         
         return $response;

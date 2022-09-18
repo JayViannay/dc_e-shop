@@ -5,7 +5,7 @@ const getAndDisplayColors = (ref, size) => {
     let idColors = [];
 
     const divSelectColor = document.getElementById('select_color_js');
-    axios.post(`/reference/colors`, { 'ref_id': ref, 'size_id': size })
+    axios.post(`/api/reference/colors`, { 'ref_id': ref, 'size_id': size })
         .then(response => response.data)
         .then(data => {
             divSelectColor.innerHTML = "";
@@ -34,7 +34,12 @@ const getAndDisplayColors = (ref, size) => {
             }
             document.getElementById('js_select_color').addEventListener('change', e => {
                 if (e.target.value !== "") {
-                    document.getElementById('js_add_cart_btn').classList.remove('d-none');
+                    axios.post('/api/reference/article-infos', { 'ref': ref, 'size': size, 'color' : e.target.value })
+                    .then(response => response.data)
+                    .then(data => {
+                        document.getElementById('js_display_qty').innerHTML = `${data.article_qty} en stock`;
+                        document.getElementById('js_add_cart_btn').classList.remove('d-none');
+                    })
                 }
             });
         });

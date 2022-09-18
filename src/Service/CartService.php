@@ -19,10 +19,10 @@ class CartService
     /**
      * add item in cart
      */
-    public function add(int $id)
+    public function add(int $id, int $qty)
     {
         $cart = $this->requestStack->getSession()->get('cart', []);
-        !empty($cart[$id]) ?  $cart[$id]++ : $cart[$id] = 1;
+        !empty($cart[$id]) ?  $cart[$id] += $qty : $cart[$id] = $qty;
         $this->requestStack->getSession()->set('cart', $cart);
     }
 
