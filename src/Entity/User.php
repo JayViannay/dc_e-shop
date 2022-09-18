@@ -49,10 +49,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Address $mainAddress = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Wishlist::class)]
+    private Collection $wishlist;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
         $this->orders = new ArrayCollection();
+        $this->wishlist = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -228,6 +232,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMainAddress(?Address $mainAddress): self
     {
         $this->mainAddress = $mainAddress;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Wishlist>
+     */
+    public function getWishlist(): Collection
+    {
+        return $this->wishlist;
+    }
+
+    public function addWishlist(Wishlist $wishlist): self
+    {
+        if (!$this->wishlist->contains($wishlist)) {
+            $this->wishlist->add($wishlist);
+            $wishlist->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWishlist(Wishlist $wishlist): self
+    {
+        if ($this->wishlist->removeElement($wishlist)) {
+            // set the owning side to null (unless already changed)
+            if ($wishlist->getUser() === $this) {
+                $wishlist->setUser(null);
+            }
+        }
 
         return $this;
     }

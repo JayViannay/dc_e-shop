@@ -38,9 +38,13 @@ class Reference
 
     private $colors = [];
 
+    #[ORM\OneToMany(mappedBy: 'reference', targetEntity: Wishlist::class)]
+    private $likes;
+
     public function __construct()
     {
         $this->articles = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,6 +166,40 @@ class Reference
         }
         $this->colors = $colors;
         return $this->colors;
+    }
+
+    public function addLike(Wishlist $like): self
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes[] = $like;
+            $like->setReference($this);
+        }
+        return $this;
+    }
+
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function removeLike(Wishlist $like): self
+    {
+        if ($this->likes->contains($like)) {
+            $this->likes->removeElement($like);
+            if ($like->getReference() === $this) {
+                $like->setReference(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isLikedByUser(User $user) : bool
+    {
+        foreach($this->likes as $like){
+            if($like->getUser() === $user) return true;
+        }
+        return false;
     }
     
 }

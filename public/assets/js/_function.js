@@ -29,7 +29,6 @@ const getAndDisplayColors = (ref, size) => {
                 const opt = document.createElement('option');
                 opt.value = idColors[i];
                 opt.innerHTML = colors[i];
-                opt.name = "color_id";
                 select.appendChild(opt);
             }
             document.getElementById('js_select_color').addEventListener('change', e => {
@@ -39,7 +38,8 @@ const getAndDisplayColors = (ref, size) => {
                     .then(data => {
                         document.getElementById('js_display_qty').innerHTML = `${data.article_qty} en stock`;
                         document.getElementById('js_add_cart_btn').classList.remove('d-none');
-                    })
+                        document.getElementById('js_img_card').src = `/assets/images/${select.options[select.selectedIndex].text}.png`;
+                    });
                 }
             });
         });

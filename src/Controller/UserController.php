@@ -97,14 +97,20 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/profil/commandes', name: 'app_user_orders', methods: ['GET','POST'])]
+    #[Route('/profil/favoris', name: 'app_user_wishlist', methods: ['GET'])]
+    public function userWishlist()
+    {
+        return $this->render('user/wishlist.html.twig');
+    }
+
+    #[Route('/profil/commandes', name: 'app_user_orders', methods: ['GET'])]
     public function listUserOrders()
     {
         return $this->render('user/orders.html.twig');
     }
 
     #[Route('/profil/commandes/{id}', name: 'app_user_order_show', methods: ['GET'])]
-    public function userOrder(UserOrder $order)
+    public function userOrderDetails(UserOrder $order)
     {
         return $this->render('user/order_show.html.twig',[
             'order' => $order
@@ -149,4 +155,5 @@ class UserController extends AbstractController
 
         return $response;
     }
+
 }

@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} - Profil/Favoris{% endblock %}
+
+{% block body %}
+<section id="user_wishlist">
+    <div class="container rounded bg-white">
+        <div class="row">
+            {% include ('user/components/nav.html.twig') %}
+            <div class="col-md-9">
+                <div class="jumbotron mt-3">
+                    <h1 class="display-6 mb-3">Vos articles favoris :</h1>
+                    {% if app.user.wishlist | length > 0 %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Reference</th>
+                                <th>Couleurs</th>
+                                <th>Tailles</th>
+                                <th>Prix</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for wish in app.user.wishlist %}
+                            <tr>
+                                <td>
+                                    <img src="{{ wish.reference.image }}" class="img-fluid" height="200px" width="200px" alt="random description">
+                                </td>
+                                <td><a href="{{path('shop_show', {'slug' : wish.reference.slug }) }}">{{ wish.reference.title }}</a></td>
+                                <td>
+                                    <ul class="list-inline">
+                                        {% for key, color in wish.reference.colors %}
+                                        <li class="list-inline-item" value="{{ key }}">
+                                            <div class="circle circle-{{color}}"></div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul class="list-inline">
+                                        {% for size in wish.reference.sizes %}
+                                        <li class="list-inline-item">{{ size }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>{{ wish.reference.price.amount }} €</td>
+                                <td class="text-center">
+                                    <form method="post" action="{{ path('shop_wishlist_remove', {'id': wish.id }) }}">
+                                        <input type="hidden" name="_token"
+                                            value="{{ csrf_token('wishlist_delete' ~ wish.id) }}">
+                                        <button class="btn btn-outline-dark"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="alert alert-dark" role="alert">
+                        Vous n'avez pas encore d'article dans vos favoris
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

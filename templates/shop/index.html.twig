@@ -11,13 +11,16 @@
                 <img src="{{ ref.image }}" class="card-img-top" style="height : 300px" alt="random description">
                 <div class="card-body">
                     <h5 class="card-title">{{ ref.title }}</h5>
-                    <p class="card-text">{{ ref.description|length > 50 ? ref.description|slice(0 , 50) ~ '...' : ref.description }}</p>
+                    <p class="card-text">{{ ref.description|length > 50 ? ref.description|slice(0 , 50) ~ '...' :
+                        ref.description }}</p>
                     <p class="card-text">Prix : {{ ref.price.amount }} €</p>
                     <div class="row">
                         <div class="col-6">
                             <ul class="list-inline">
                                 {% for key, color in ref.colors %}
-                                <li class="list-inline-item" value="{{ key }}"><div class="circle circle-{{color}}"></div></li>
+                                <li class="list-inline-item" value="{{ key }}">
+                                    <div class="circle circle-{{color}}"></div>
+                                </li>
                                 {% endfor %}
                             </ul>
                         </div>
@@ -29,8 +32,17 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="text-end">
-                        <a href="{{ path('shop_show', {'slug': ref.slug }) }}" class="btn btn-dark">Voir le détail</a>
+                    <div class="d-flex flex-row-reverse">
+                        <a href="{{ path('shop_show', {'slug': ref.slug }) }}" class="btn btn-dark mx-3">Voir le
+                            détail</a>
+                        <form method="post" action="{{ path('shop_wishlist_add', {'id': ref.id }) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('wishlist_add' ~ ref.id) }}">
+                            {% if app.user and ref.isLikedByUser(app.user) %}
+                            <button class="btn btn-outline-dark"><i class="fa-solid fa-heart"></i></button>
+                            {% else %}
+                            <button class="btn btn-outline-dark"><i class="fa-regular fa-heart"></i></button>
+                            {% endif %}
+                        </form>
                     </div>
                 </div>
             </div>
