@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use function PHPUnit\Framework\returnSelf;
+
 class CartController extends AbstractController
 {
     private $cartService;
@@ -39,27 +41,33 @@ class CartController extends AbstractController
         $orderForm->handleRequest($request);
 
         if ($orderForm->isSubmitted() && $orderForm->isValid()) {
-            $order->setTotal($cartService->getTotalCart());
-            $userOrderRepository->add($order, true);
-
-            $articles = $cartService->getCartItems();
-            foreach ($articles as $article) {
-                if ($article['article']->getQty() < $article['quantity']) {
-                    return $this->addFlash('danger', $article['article']->getReference()->getTitle() .'n\est pas disponible dans la quantité demandée (quantité en stock : '.$article['article']->getQty());
-                } else {
+            if (!$this->getUser()) return $this->redirectToRoute('app_login');
+            if (!$this->getUser()->getMainAddress() || !$this->getUser()->getFirstname() || !$this->getUser()->getLastname()) {
+                $this->addFlash('danger', 'Vous devez avoir une adresse principale et enregistrer votre nom et prénom dans votre espace personnel pour passer commande');
+                return $this->redirectToRoute('app_user_profile');
+            } else {
+                $order->setTotal($cartService->getTotalCart());
+                $userOrderRepository->add($order, true);
+    
+                $articles = $cartService->getCartItems();
+                $ticketsOk = false;
+                foreach ($articles as $article) {
+                    if ($article['article']->getQty() < $article['quantity']) {
+                        return $this->addFlash('danger', $article['article']->getReference()->getTitle() .'n\est pas disponible dans la quantité demandée (quantité en stock : '.$article['article']->getQty());
+                    } 
                     $ticket = new Ticket();
                     $ticket->setReferenceOrder($order)->setArticle($article['article'])->setQty($article['quantity']);
                     $ticketRepository->add($ticket, true);
-
+    
                     // handle stock
                     $article['article']->setQty($article['article']->getQty() - $article['quantity']);
                     $articleRepository->add($article['article'], true);
-
+    
                     $this->addFlash('success', 'Félicitations, votre commande est validée !');
                     $cartService->cleanCart();
-
-                    return $this->redirectToRoute('app_user_orders');
+                    $ticketsOk = true;
                 }
+                return $this->redirectToRoute('app_user_orders');
             }
             return $this->redirectToRoute('app_user_profile');
         }

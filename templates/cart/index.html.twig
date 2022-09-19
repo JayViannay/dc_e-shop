@@ -4,6 +4,8 @@
 
 {% block body %}
 <section class="container" id="cart_ticket">
+    {{ dump(app.session) }}
+    {{dump(items)}}
     <div class="jumbotron mt-3">
         <h1 class="display-6 mb-3">Cart :</h1>
         {% if items | length > 0 %}
