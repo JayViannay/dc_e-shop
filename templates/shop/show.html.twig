@@ -12,6 +12,7 @@
             <h5 class="card-title">{{ ref.title }}</h5>
             <p class="card-text">{{ ref.description }}</p>
             <p class="card-text">Price : {{ ref.price.amount }} €</p>
+            {% if ref.colors|length > 0 and ref.sizes|length > 0 %}
             <div class="row">
                 <div class="col-6">
                     <h6>Couleurs disponibles :</h6>
@@ -34,6 +35,9 @@
                 </div>
             </div>
             {% include 'shop/components/_add_to_cart_form.html.twig' %}
+            {% else %}
+                <p>Article indisponible pour le moment.</p>
+            {% endif %}
         </div>
     </div>
     <div class="text-end">

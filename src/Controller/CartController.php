@@ -50,7 +50,6 @@ class CartController extends AbstractController
                 $userOrderRepository->add($order, true);
     
                 $articles = $cartService->getCartItems();
-                $ticketsOk = false;
                 foreach ($articles as $article) {
                     if ($article['article']->getQty() < $article['quantity']) {
                         return $this->addFlash('danger', $article['article']->getReference()->getTitle() .'n\est pas disponible dans la quantité demandée (quantité en stock : '.$article['article']->getQty());
@@ -65,7 +64,6 @@ class CartController extends AbstractController
     
                     $this->addFlash('success', 'Félicitations, votre commande est validée !');
                     $cartService->cleanCart();
-                    $ticketsOk = true;
                 }
                 return $this->redirectToRoute('app_user_orders');
             }
